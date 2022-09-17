@@ -21,12 +21,12 @@ export default function Index() {
 
           <section className="text-gray-600 body-font py-8">
             <h1 className="text-center font-medium text-3xl dark:text-white">Example how to Auth in NextJS using Context</h1>
-            <h1 className="text-center font-medium text-xl dark:text-white mb-6">Check Auth on every single page or using PrivateRoute Component</h1>
+            <h1 className="text-center font-medium text-xl dark:text-white mb-8 mt-2">Check Auth on every single page or using PrivateRoute Component</h1>
             <div className="flex justify-center md:mx-16">
-              <ul className="dark:text-white">
-                <li><b>Client Protected</b> using client side <b>useEffect</b>, This page did the auth checking directly on the page file. redirected to login page if login false</li>
-                <li><b>Server Protected</b> using <b>getServerSideProps</b> automatically redirected to login page before content being render</li>
-                <li><b>Admin/First</b> & <b>Admin/Second</b> using  <b>privateRoute component</b> that intercept request to every page that declared in <b>_app.js</b>. if no user was logged in, automatically redirected to login page.</li>
+              <ul className="dark:text-white space-y-1.5 list-disc mx-4">
+                <li><b>Client</b> using <b>useEffect</b>, this page did the auth checking directly on the page, redirected to login page if login false</li>
+                <li><b>Server</b> using <b>getServerSideProps</b>, automatically redirected to login page before content being render</li>
+                <li><b>Admin/First</b> & <b>Admin/Second</b> using  <b>privateRoute component</b> that intercept request to every page inside <b>admin</b> that declared in <b>_app.js</b>. if no user was logged in, automatically redirected to login page.</li>
               </ul>
             </div>
           </section>

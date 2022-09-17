@@ -172,9 +172,13 @@ export default function Navbar() {
 
               <div
                 onClick={() => setDarkMode(!darkMode)}
-                className="transition-all cursor-pointer w-9 h-6 dark:bg-blue-500 bg-neutral-200 rounded-full relative mx-3"
+                className="transition-all cursor-pointer px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-neutral-800 w-11 rounded-md"
               >
-                <div className="h-4 w-4 bg-white rounded-full absolute top-1 transition-all dark:left-4 left-1"></div>
+                {darkMode ?
+                  <SunIcon className="w-5 h-5 dark:text-white" />
+                  :
+                  <MoonIcon className="w-5 h-5 dark:text-white" />
+                }
               </div>
             </div>
           </Disclosure.Panel>

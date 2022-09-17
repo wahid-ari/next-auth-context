@@ -6,10 +6,10 @@ import "@styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
   // Add your protected routes here
-  const protectedRoutes = [
-    '/admin/first',
-    '/admin/second'
-  ];
+  // by specific route
+  // const protectedRoutes = ['/admin/first','/admin/second'];
+  // by folder
+  const protectedRoutes = ['/admin'];
 
   return (
     <GlobalProvider>

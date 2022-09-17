@@ -16,7 +16,7 @@ export default function Login() {
   const { setIsAuthenticated } = useContext(AuthContext);
 
   const [input, setInput] = useState(
-    { username: "", password: "" }
+    { username: "admin", password: "password" }
   )
   const [error, setError] = useState()
   const [success, setSuccess] = useState()
@@ -64,8 +64,8 @@ export default function Login() {
 
           <section className="text-gray-600 body-font py-8 max-w-sm mx-auto">
             <h1 className="text-center font-medium text-3xl dark:text-whitem dark:text-white mb-4">Login</h1>
-            <Input onChange={handleChange} label="Username" name="username" placeholder="Username" type="text" />
-            <InputPassword onChange={handleChange} label="Password" name="password" placeholder="Password" />
+            <Input onChange={handleChange} value={input.username} label="Username" name="username" placeholder="Username" type="text" />
+            <InputPassword onChange={handleChange} value={input.password} label="Password" name="password" placeholder="Password" />
             <Button onClick={handleSubmit} className="w-full">Login</Button>
             {error && <p className="text-red-500 text-center mt-4 text-sm font-medium">{error}</p>}
             {success && <p className="text-green-500 text-center mt-4 text-sm font-medium">{success}</p>}
