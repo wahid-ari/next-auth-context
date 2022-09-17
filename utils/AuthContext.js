@@ -9,8 +9,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
+    setIsLogin(localStorage.getItem('login'))
+  })
+
+  useEffect(() => {
+    setIsLogin(localStorage.getItem('login'))
     const cookies = nookies.get('token');
     const token = cookies.token;
     if (!(token === null || token === undefined)) {
@@ -25,7 +31,7 @@ export function AuthProvider({ children }) {
       setUser(null)
     }
     setIsLoading(false);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isLogin]);
 
   function logout() {
     setIsAuthenticated(false);
@@ -42,6 +48,8 @@ export function AuthProvider({ children }) {
       value={{
         isAuthenticated,
         setIsAuthenticated,
+        isLogin,
+        setIsLogin,
         user,
         setUser,
         logout,

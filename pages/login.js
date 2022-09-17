@@ -37,6 +37,7 @@ export default function Login() {
         setError("")
         nookies.set(null, 'username', input.username, {})
         nookies.set(null, 'token', data.token, {})
+        localStorage.setItem("login", true);
         setIsAuthenticated(true);
         Router.push("/server");
       } else {
