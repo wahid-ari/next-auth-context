@@ -6,6 +6,7 @@ import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "@utils/AuthContext";
 import { AxiosConfigContext } from "@utils/useAxiosConfig";
 import axios from 'axios';
+import nookies from 'nookies'
 
 export default function Data() {
   const [data, setData] = useState()
@@ -22,11 +23,11 @@ export default function Data() {
   //   axios.defaults.headers.common['Authorization'] = "";
   // }
 
-  const { user, isLoading } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
 
   const config = {
     headers: {
-      Authorization: `Bearer ${user ? user.token : ""}`,
+      Authorization: `Bearer ${token}`,
     },
   };
 
@@ -61,11 +62,11 @@ export default function Data() {
   }
 
   useEffect(() => {
-    if (!isLoading && !fetched) {
+    if (!fetched) {
       getData()
       getOtherData()
     }
-  }, [fetched, isLoading]);
+  }, [fetched]);
 
   return (
     <>

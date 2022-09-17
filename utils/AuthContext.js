@@ -8,8 +8,11 @@ export const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isLogin, setIsLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const cookies = nookies.get('token')
+  const token = cookies.token !== undefined ? cookies.token : ""
 
   useEffect(() => {
     setIsLogin(localStorage.getItem('login'))
@@ -34,12 +37,14 @@ export function AuthProvider({ children }) {
   }, [isAuthenticated, isLogin]);
 
   function logout() {
-    setIsAuthenticated(false);
-    setUser(null);
-    nookies.destroy(null, 'token')
-    nookies.destroy(null, 'username')
+    nookies.destroy(null, 'token');
+    nookies.destroy(null, 'username');
+    localStorage.setItem("login", false);
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
     document.cookie = 'username=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    setIsAuthenticated(false);
+    setIsLogin(false);
+    setUser(null);
     Router.replace("/login");
   }
 
@@ -52,6 +57,7 @@ export function AuthProvider({ children }) {
         setIsLogin,
         user,
         setUser,
+        token,
         logout,
         isLoading,
       }}
