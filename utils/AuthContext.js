@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import nookies from 'nookies'
+import nookies from 'nookies';
 import jwt from "jsonwebtoken";
 import Router from 'next/router';
 

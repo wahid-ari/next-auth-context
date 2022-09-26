@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import { AuthContext } from "@utils/AuthContext";
-import Head from 'next/head'
-import Footer from '@components/Footer'
-import Navbar from '@components/Navbar'
+import Head from 'next/head';
+import Footer from '@components/Footer';
+import Navbar from '@components/Navbar';
 import Layout from '@components/Layout';
-import nookies from 'nookies'
+import nookies from 'nookies';
 
 export default function Server() {
   const { user } = useContext(AuthContext);

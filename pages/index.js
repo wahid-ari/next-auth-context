@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Footer from '@components/Footer'
 import Navbar from '@components/Navbar'
 import Layout from '@components/Layout';
+import Code from '@components/Code';
 
 export default function Index() {
 
@@ -24,11 +25,356 @@ export default function Index() {
             <h1 className="text-center font-medium text-xl dark:text-white mb-8 mt-2">Check Auth on every single page or using PrivateRoute Component</h1>
             <div className="flex justify-center md:mx-16">
               <ul className="dark:text-white space-y-1.5 list-disc mx-4">
-                <li><b>Client</b> using <b>useEffect</b>, this page did the auth checking directly on the page, redirected to login page if login false</li>
-                <li><b>Server</b> using <b>getServerSideProps</b>, automatically redirected to login page before content being render</li>
-                <li><b>Admin/First</b> & <b>Admin/Second</b> using  <b>privateRoute component</b> that intercept request to every page inside <b>admin</b> that declared in <b>_app.js</b>. if no user was logged in, automatically redirected to login page.</li>
+                <li>
+                  <a href="#client" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b>Client </b>
+                  </a>
+                  using <b>useEffect</b>, this page did the auth checking directly on the page, redirected to login page if login false
+                </li>
+                <li>
+                  <a href="#server" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b>Server </b>
+                  </a>
+                  using <b>getServerSideProps</b>, automatically redirected to login page before content being render
+                </li>
+                <li><b>Admin/First</b> & <b>Admin/Second</b> using
+                  <a href="#private-route" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b> privateRoute component </b>
+                  </a>
+                  that intercept request to every page inside <b>admin</b> that declared in
+                  <a href="#app" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b> _app.js</b>
+                  </a>.
+                  if no user was logged in, automatically redirected to login page.
+                </li>
+                <li>
+                  <a href="#auth-context" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b>AuthContext </b>
+                  </a>
+                </li>
+                <li>
+                  <a href="#page-loader" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b>PageLoader </b>
+                  </a>
+                </li>
+                <li>
+                  <a href="#login" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b>Login </b>
+                  </a>
+                </li>
+                <li>
+                  <a href="#logout" className="text-blue-500 hover:text-blue-600 transition-all cursor-pointer">
+                    <b>Logout </b>
+                  </a>
+                </li>
               </ul>
             </div>
+
+            <div id="client" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="pages/client" code={`import { useContext, useEffect } from "react";
+import { AuthContext } from "@utils/AuthContext";
+import FullPageLoader from "@components/FullPageLoader";
+
+export default function Client() {
+  const { user, isAuthenticated, isLoading } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      Router.push('/login');
+    }
+  }, [isAuthenticated, isLoading]);
+
+  if (isLoading || !isAuthenticated) {
+    return <FullPageLoader />;
+  }
+
+  return (
+    <h1>Username : {user?.username}</h1>
+    <h1>Token : {user?.token}</h1>
+  )
+}`} />
+            </div>
+
+            <div id="server" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="pages/server" code={`import { useContext } from "react";
+import { AuthContext } from "@utils/AuthContext";
+import nookies from 'nookies';
+
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context)
+
+  if (!cookies.token) {
+    return {
+      redirect: {
+        destination: "/login"
+      }
+    }
+  }
+
+  return {
+    props: {
+    }
+  }
+}
+
+export default function Server() {
+  const { user } = useContext(AuthContext);
+
+  return (
+    <h1>Username : {user?.username}</h1>
+    <h1>Token : {user?.token}</h1>
+  )
+}`} />
+            </div>
+
+            <div id="private-route" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="components/PrivateRoute" code={`import { useEffect, useContext } from 'react';
+import { useRouter } from 'next/router';
+import { AuthContext } from "@utils/AuthContext";
+import FullPageLoader from './FullPageLoader';
+
+export default function PrivateRoute({ protectedRoutes, children }) {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useContext(AuthContext);
+  
+  // by folder
+  const rootFolder = router.pathname.split('/').splice(1)[0]
+  const currentRoute = []
+  currentRoute.push("/" + rootFolder)
+
+  const pathIsProtected = protectedRoutes.includes(currentRoute[0])
+  
+  // by specific route
+  // const pathIsProtected = protectedRoutes.indexOf(router.pathname) !== -1;
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && pathIsProtected) {
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, pathIsProtected]);
+
+  if ((isLoading || !isAuthenticated) && pathIsProtected) {
+    return <FullPageLoader />;
+  }
+
+  return children;
+}`} />
+            </div>
+
+            <div id="app" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="pages/_app.js" code={`import { AuthProvider } from "@utils/AuthContext";
+import PrivateRoute from "@components/PrivateRoute";
+import "@styles/globals.css";
+import "@styles/prism.css";
+
+function MyApp({ Component, pageProps }) {
+  // Add your protected routes here
+  // by specific route
+  // const protectedRoutes = ['/admin/first','/admin/second'];
+  // or by folder
+  const protectedRoutes = ['/admin'];
+
+  return (
+    <AuthProvider>
+      <PrivateRoute protectedRoutes={protectedRoutes}>
+        <Component {...pageProps} />
+      </PrivateRoute>
+    </AuthProvider>
+  )
+}
+
+export default MyApp`} />
+            </div>
+
+            <div id="auth-context" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="utils/AuthContext" code={`import React, { createContext, useState, useEffect } from 'react';
+import nookies from 'nookies';
+import jwt from "jsonwebtoken";
+import Router from 'next/router';
+
+export const AuthContext = createContext();
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const cookies = nookies.get('token')
+  const token = cookies.token !== undefined ? cookies.token : ""
+
+  useEffect(() => {
+    setIsLogin(localStorage.getItem('login'))
+  })
+
+  useEffect(() => {
+    setIsLogin(localStorage.getItem('login'))
+    const cookies = nookies.get('token');
+    const token = cookies.token;
+    if (!(token === null || token === undefined)) {
+      const decoded = jwt.decode(token);
+      setUser({
+        username: decoded.username,
+        token: token
+      });
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+      setUser(null)
+    }
+    setIsLoading(false);
+  }, [isAuthenticated, isLogin]);
+
+  function logout() {
+    nookies.destroy(null, 'token');
+    nookies.destroy(null, 'username');
+    localStorage.setItem("login", false);
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    document.cookie = 'username=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    setIsAuthenticated(false);
+    setIsLogin(false);
+    setUser(null);
+    Router.replace("/login");
+  }
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        setIsAuthenticated,
+        isLogin,
+        setIsLogin,
+        user,
+        setUser,
+        token,
+        logout,
+        isLoading,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}`} />
+            </div>
+
+            <div id="page-loader" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="components/FullPageLoader" code={`export default function FullPageLoader() {
+  return (
+    <div className='flex flex-col items-center justify-center min-h-screen text-gray-800 dark:text-white dark:bg-neutral-900'>
+      <div role="status">
+        <svg aria-hidden="true" className="mr-2 w-8 h-8 mb-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+        </svg>
+        <span className="sr-only">Loading...</span>
+      </div>
+      <p>Loading...</p>
+    </div>
+  );
+}`} />
+            </div>
+
+            <div id="login" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="pages/login" code={`import { useState, useContext } from "react";
+import Router from "next/router";
+import Head from 'next/head'
+import axios from 'axios';
+import Footer from '@components/Footer'
+import Navbar from '@components/Navbar'
+import Layout from '@components/Layout';
+import Input from '@components/Input';
+import Button from '@components/Button';
+import nookies from 'nookies';
+import { AuthContext } from "@utils/AuthContext";
+import InputPassword from "@components/InputPassword";
+
+export async function getServerSideProps(context) {
+  // Parse
+  const cookies = nookies.get(context)
+
+  if (cookies.token) {
+    return {
+      redirect: {
+        destination: "/server"
+      }
+    }
+  }
+
+  return {
+    props: {
+    }
+  }
+}
+
+export default function Login() {
+  const { setIsAuthenticated } = useContext(AuthContext);
+  const [input, setInput] = useState(
+    { username: "admin", password: "password" }
+  )
+  const [error, setError] = useState()
+  const [success, setSuccess] = useState()
+
+  function handleChange(e) {
+    setInput({
+      ...input,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      const { data } = await axios.post('/api/login', input);
+      if (data.status === 200) {
+        setSuccess("Success Login")
+        setError("")
+        nookies.set(null, 'username', input.username, {})
+        nookies.set(null, 'token', data.token, {})
+        localStorage.setItem("login", true);
+        setIsAuthenticated(true);
+        Router.push("/server");
+      } else {
+        setSuccess("")
+        setError(data.error)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
+  return (
+    <Input onChange={handleChange} value={input.username} name="username" />
+    <InputPassword onChange={handleChange} value={input.password} name="password" />
+    <Button onClick={handleSubmit} className="w-full">Login</Button>
+  )
+}`} />
+            </div>
+
+            <div id="logout" className="mx-auto px-4 sm:px-6 md:px-8 pt-8">
+              <Code name="pages/logout" code={`import { useEffect, useContext } from "react";
+import { AuthContext } from "@utils/AuthContext";
+import Router from "next/router";
+import nookies from 'nookies'
+
+export default function Logout() {
+  const { setIsAuthenticated, setIsLogin, setUser} = useContext(AuthContext);
+
+  useEffect(() => {
+    nookies.destroy(null, 'token');
+    nookies.destroy(null, 'username');
+    localStorage.setItem("login", false);
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    document.cookie = 'username=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    setIsAuthenticated(false);
+    setIsLogin(false);
+    setUser(null);
+    Router.replace("/login");
+  }, []);
+
+  return ("")
+}`} />
+            </div>
+
           </section>
 
         </main>

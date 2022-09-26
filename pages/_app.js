@@ -3,12 +3,13 @@ import { AxiosConfigProvider } from "@utils/useAxiosConfig";
 import { AuthProvider } from "@utils/AuthContext";
 import PrivateRoute from "@components/PrivateRoute";
 import "@styles/globals.css";
+import "@styles/prism.css";
 
 function MyApp({ Component, pageProps }) {
   // Add your protected routes here
   // by specific route
   // const protectedRoutes = ['/admin/first','/admin/second'];
-  // by folder
+  // or by folder
   const protectedRoutes = ['/admin'];
 
   return (
